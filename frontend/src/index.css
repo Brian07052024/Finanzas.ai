@@ -1,0 +1,245 @@
+@import "tailwindcss";
+
+/*
+  Sistema visual de FinanzasAI: vidrio oscuro.
+
+  Referencia: fondo casi negro con brillos verde azulados muy tenues y formas facetadas al fondo;
+  tarjetas casi transparentes definidas por un borde fino y claro; tipografía de pesos regulares y
+  medios; un azul vivo como acento principal y etiquetas con contorno de color.
+
+  Principios de la guía glassmorphism (compozy):
+  - Fondo primero: el vidrio solo se nota si hay algo detrás (brillos y formas en FondoApp).
+  - Una sola luz, arriba a la izquierda: el borde superior es un poco más claro que el inferior.
+  - Pocas superficies con backdrop-filter por vista (.vidrio); el resto es .placa, con el mismo
+    aspecto pero sin desenfoque. Sobre un fondo de degradados suaves el desenfoque casi no se ve,
+    así que la sensación de vidrio la dan la transparencia y el borde.
+  - Primero la versión opaca; el desenfoque se agrega dentro de @supports.
+
+  Paleta de series validada con el validador de la skill dataviz contra la superficie #13171b
+  (modo oscuro, todos los pares): necesidades #2f86e8, deseos #cf7d24, ahorro #1a9e86.
+  Contraste de texto sobre #13171b: tinta-1 16.6:1, tinta-2 9.2:1, tinta-3 5.7:1.
+  Blanco sobre --acento: 4.6:1.
+*/
+
+@theme {
+  --font-sans: "Lexend", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+:root {
+  color-scheme: dark;
+
+  --fondo: #0b0d10;
+  --superficie: #13171b;
+
+  --tinta-1: #f4f6f8;
+  --tinta-2: #b4bac3;
+  --tinta-3: #8b929c;
+
+  --acento: #0f74db;
+  --acento-claro: #4ea3ff;
+
+  --serie-necesidades: #2f86e8;
+  --serie-deseos: #cf7d24;
+  --serie-ahorro: #1a9e86;
+
+  --texto-necesidades: #4ea3ff;
+  --texto-deseos: #f0a24a;
+  --texto-ahorro: #2cc3a5;
+  --texto-alerta: #f87171;
+  --texto-ingreso: #4ea3ff;
+  --texto-gasto: #f87171;
+  --texto-saldo: #8bff38;
+
+  --estado-alerta: #fab219;
+
+  --borde: rgba(255, 255, 255, 0.2);
+  --borde-suave: rgba(255, 255, 255, 0.09);
+}
+
+/*
+  El color base va solo en html. Si body tuviera fondo propio, se pintaría encima del fondo decorativo
+  (FondoApp usa z-index negativo, y en el contexto raíz los fondos de bloque se pintan después de él).
+*/
+html {
+  background: var(--fondo);
+}
+
+body {
+  background: transparent;
+}
+
+html,
+body {
+  color: var(--tinta-1);
+  font-family: var(--font-sans);
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Tailwind 4 deja los botones con el cursor normal; aquí todo lo clicable lleva la mano. */
+button:not(:disabled),
+[role="button"],
+summary,
+select,
+a[href],
+label:has(> input[type="radio"]),
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+}
+
+/*
+  Entrada de las tarjetas. Se anima cada tarjeta y no el contenedor de la sección: un contenedor con
+  opacidad menor a 1 se vuelve "raíz de backdrop" y las tarjetas de vidrio que tiene dentro dejan de ver
+  el fondo, así que el desenfoque saltaría de golpe al terminar la animación. Animando la tarjeta
+  misma, su desenfoque se ve desde el primer cuadro.
+  El componente Escalonado reparte animation-delay para que entren una tras otra.
+  fill-mode backwards: mientras espera su turno, la tarjeta ya está invisible (sin parpadeo).
+*/
+@keyframes entrar {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.entrada {
+  animation: entrar 380ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+}
+
+/* Esqueletos de carga: barras con un brillo que las recorre. */
+@keyframes brillo {
+  from {
+    background-position: 150% 0;
+  }
+  to {
+    background-position: -50% 0;
+  }
+}
+
+.esqueleto-linea {
+  border-radius: 9999px;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0.13) 50%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  background-size: 200% 100%;
+  animation: brillo 1.5s ease-in-out infinite;
+}
+
+@layer components {
+  /* Versión opaca primero: se ve bien aun sin soporte de backdrop-filter. */
+  .vidrio,
+  .placa {
+    background: linear-gradient(160deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.012) 55%);
+    border: 1.5px solid var(--borde);
+    border-top-color: rgba(255, 255, 255, 0.28);
+    border-bottom-color: rgba(255, 255, 255, 0.14);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.06),
+      0 24px 48px -24px rgba(0, 0, 0, 0.7);
+  }
+
+  .vidrio {
+    background-color: rgba(14, 17, 21, 0.92);
+  }
+
+  .placa {
+    background-color: rgba(12, 13, 20, 0.68);
+  }
+
+  @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .vidrio {
+      background-color: rgba(12, 13, 20, 0.5);
+      -webkit-backdrop-filter: blur(10px) saturate(1.4);
+      backdrop-filter: blur(10px) saturate(1.4);
+    }
+  }
+
+  /* Campos en cápsula, transparentes, con borde fino. */
+  .campo {
+    display: block;
+    width: 100%;
+    margin-top: 0.375rem;
+    border-radius: 9999px;
+    border: 1.5px solid var(--borde);
+    background: rgba(255, 255, 255, 0.02);
+    color: var(--tinta-1);
+    padding: 0.6rem 1.1rem;
+    font-size: 0.9rem;
+    font-weight: 400;
+  }
+
+  .campo:focus {
+    outline: none;
+    border-color: var(--acento-claro);
+    box-shadow: 0 0 0 3px rgba(78, 163, 255, 0.18);
+  }
+
+  select.campo {
+    border-radius: 1.25rem;
+  }
+
+  .campo option,
+  .campo optgroup {
+    background: var(--superficie);
+    color: var(--tinta-1);
+  }
+
+  .etiqueta {
+    font-size: 0.875rem;
+    color: var(--tinta-3);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .vidrio,
+  .placa {
+    background: var(--superficie);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .vidrio,
+  .placa {
+    border: 1px solid CanvasText;
+    background: Canvas;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+@media print {
+  html,
+  body {
+    background: #ffffff;
+    color: #000000;
+  }
+
+  .vidrio,
+  .placa {
+    background: #ffffff;
+    border: 1px solid #999999;
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  .fondo-app {
+    display: none;
+  }
+}

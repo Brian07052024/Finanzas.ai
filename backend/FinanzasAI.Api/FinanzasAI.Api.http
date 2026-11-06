@@ -1,0 +1,77 @@
+@FinanzasAI.Api_HostAddress = http://localhost:5212
+
+GET {{FinanzasAI.Api_HostAddress}}/api/movimientos/quincena-actual
+Accept: application/json
+
+###
+
+POST {{FinanzasAI.Api_HostAddress}}/api/movimientos
+Content-Type: application/json
+
+{
+  "tipo": "Ingreso",
+  "monto": 8000.00,
+  "fecha": "2026-11-04",
+  "descripcion": "Nómina"
+}
+
+###
+
+POST {{FinanzasAI.Api_HostAddress}}/api/movimientos
+Content-Type: application/json
+
+{
+  "tipo": "Gasto",
+  "monto": 450.50,
+  "fecha": "2026-11-04",
+  "categoria": "Supermercado",
+  "descripcion": "Súper"
+}
+
+###
+
+GET {{FinanzasAI.Api_HostAddress}}/api/diagnostico
+Accept: application/json
+
+###
+
+GET {{FinanzasAI.Api_HostAddress}}/api/plan
+Accept: application/json
+
+###
+
+PUT {{FinanzasAI.Api_HostAddress}}/api/plan/meta
+Content-Type: application/json
+
+{
+  "porcentajeMeta": 20
+}
+
+###
+
+GET {{FinanzasAI.Api_HostAddress}}/api/plan/pesos
+Accept: application/json
+
+###
+
+POST {{FinanzasAI.Api_HostAddress}}/api/plan/rechazos
+Content-Type: application/json
+
+{
+  "categoria": "Restaurantes"
+}
+
+###
+
+DELETE {{FinanzasAI.Api_HostAddress}}/api/plan/pesos
+
+###
+
+GET {{FinanzasAI.Api_HostAddress}}/api/flujo
+Accept: application/json
+
+###
+
+DELETE {{FinanzasAI.Api_HostAddress}}/api/movimientos/1
+
+###

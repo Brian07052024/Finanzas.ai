@@ -1,0 +1,16 @@
+services:
+  db:                                  # Nombre del servicio (lo eliges tú)
+    image: postgres:17                  # Imagen y versión mayor fija (evita "latest")
+    container_name: finanzasai-db       # Nombre fijo para identificar el contenedor
+    environment:                        # Configuración de Postgres al arrancar
+      POSTGRES_USER: finanzas
+      POSTGRES_PASSWORD: finanzas_dev
+      POSTGRES_DB: finanzasai           # Base de datos que se crea automáticamente
+    ports:
+      - "5432:5432"                     # puerto_de_tu_maquina:puerto_del_contenedor
+    volumes:
+      - pgdata:/var/lib/postgresql/data # Donde Postgres guarda los datos
+    restart: unless-stopped             # Se reinicia solo, salvo que lo detengas tú
+
+volumes:
+  pgdata:                               # Declara el volumen con nombre
